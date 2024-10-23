@@ -110,6 +110,7 @@ img {
 }
 
 .card-match::after {
+  cursor: auto;
   opacity: 0;
 }
 

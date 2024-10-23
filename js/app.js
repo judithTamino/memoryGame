@@ -14,18 +14,16 @@ const cards = [
   "/images/pumpkin.png",
   "/images/pumpkin.png"
 ];
+let firstCard = "", secondCard = "";
+let lockBoard = false;
 
+// shuffle Cards
 const randomCards = cards.sort(() => Math.random() - 0.5);
-initializeGame()
+createCards();
 
 function initializeGame() {
-  createCards();
-
   const cards = document.querySelectorAll(".card");
-  cards.forEach(card => card.addEventListener('click', () => {
-    card.classList.toggle("card-flipped");
-    checkMatch(card);
-  }));
+  cards.forEach(card => card.addEventListener('click', flipCard));
 }
 
 // func -> create cards
@@ -42,43 +40,77 @@ function createCards() {
   }
 };
 
+// func -> flip card
+function flipCard() {
+  let currentCard = this;
+
+  if (!lockBoard) {
+    if (currentCard === firstCard || currentCard.classList.contains("card-match"))
+      return;
+
+    // add card flipped class to the clicked card
+    currentCard.classList.add("card-flipped");
+
+    // checks if the var (firstCard) is empty
+    if (firstCard === "") {
+      firstCard = currentCard;
+      return;
+    }
+
+    secondCard = currentCard;
+    lockBoard = true;
+
+    checkMatch();
+  }
+};
+
 // func -> check if 2 card match
 function checkMatch() {
-  const flippedCards = document.querySelectorAll(".card-flipped");
-
   setTimeout(() => {
-    if (flippedCards.length == 2) {
-      console.log(flippedCards.length)
-      const cardImgOne = flippedCards[0].children[0].src;
-      const cardImgTwo = flippedCards[1].children[0].src;
+    const firstCardImg = firstCard.children[0].src;
+    const secondCardImg = secondCard.children[0].src;
 
-      if (cardImgOne === cardImgTwo) {
-        flippedCards[0].classList.add("card-match");
-        flippedCards[1].classList.add("card-match");
-       
-        flippedCards[0].classList.remove("card-flipped");
-        flippedCards[1].classList.remove("card-flipped");
-       
-        isWinner();
-      }
+    if (firstCardImg === secondCardImg) {
+      firstCard.classList.add("card-match");
+      secondCard.classList.add("card-match");
+
+      firstCard.classList.remove("card-flipped");
+      secondCard.classList.remove("card-flipped");
+
+      isWinner();
+
     } else {
-      flippedCards[0].classList.remove("card-flipped");
-      flippedCards[1].classList.remove("card-flipped");
+      firstCard.classList.remove("card-flipped");
+      secondCard.classList.remove("card-flipped");
     }
-  }, 5000);
+
+    lockBoard = false;
+    firstCard = "";
+  }, 1000);
 };
 
 // func -> check if win
 function isWinner() {
- const matchedCards = document.querySelectorAll(".card-match");
- 
-  
+  const matchedCards = document.querySelectorAll(".card-match");
+  console.log(matchedCards.length);
+
   if (matchedCards.length == randomCards.length) {
     popup.classList.remove("hide-popup")
     popup.classList.add("show-popup")
   }
-}
 
+  lockBoard = true;
+};
 
 // func -> restart game
-function restartGame() { };
+function restartGame() {
+  location.reload();
+};
+
+// func -> close popup window
+function closePopup() {
+  popup.classList.remove("show-popup");
+  popup.classList.add("hide-popup");
+}
+
+initializeGame();
